@@ -100,12 +100,17 @@ public class ServidorLocalDB2 {
         }
 
         private void enviarResposta(HttpExchange exchange, int statusCode, String resposta) throws IOException {
-            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
-            byte[] bytes = resposta.getBytes(StandardCharsets.UTF_8);
-            exchange.sendResponseHeaders(statusCode, bytes.length);
-            try (OutputStream os = exchange.getResponseBody()) {
-                os.write(bytes);
-            }
+        // 👇 ADICIONE ESTA LINHA ABAIXO PARA LIBERAR O ACESSO DO NAVEGADOR
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+    
+        exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+        byte[] bytes = resposta.getBytes(StandardCharsets.UTF_8);
+        exchange.sendResponseHeaders(statusCode, bytes.length);
+
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(bytes);
+        }
+
         }
     }
 }

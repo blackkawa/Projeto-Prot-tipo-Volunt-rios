@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Voluntário - VOLUNTARIE</title>
+    <style>
+        :root {
+            --cor-primaria: #5d9b5b; /* Verde institucional do voluntário */
+            --cor-bg: #f4f5f7;
+            --texto: #333333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--cor-bg);
+            color: var(--texto);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--cor-primaria);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        header h1 { font-size: 20px; }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid white;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .btn-logout:hover { background: rgba(255,255,255,0.2); }
+
+        main {
+            flex: 1;
+            max-width: 600px;
+            width: 100%;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+            color: var(--cor-primaria);
+            border-bottom: 2px solid #eef0f3;
+            padding-bottom: 10px;
+        }
+
+        .dado-grupo {
+            margin-bottom: 20px;
+        }
+
+        .dado-grupo label {
+            display: block;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #777777;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .dado-valor {
+            font-size: 16px;
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 4px;
+            border: 1px solid #eef0f3;
+        }
+
+        .badge-status {
+            display: inline-block;
+            background-color: #e6f4ea;
+            color: #137333;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>VOLUNTARIE — Portal do Voluntário</h1>
+    <button class="btn-logout" onclick="logout()">Sair</button>
+</header>
+
+<main>
+    <div class="card">
+        <h2>Meus Dados Cadastrais</h2>
+        
+        <div class="dado-grupo">
+            <label>Nome Completo</label>
+            <div id="vol-nome" class="dado-valor">Carregando...</div>
+        </div>
+
+        <div class="dado-grupo">
+            <label>CPF</label>
+            <div id="vol-cpf" class="dado-valor">Carregando...</div>
+        </div>
+
+        <div class="dado-grupo">
+            <label>Código de Identificação (ID)</label>
+            <div id="vol-id" class="dado-valor">Carregando...</div>
+        </div>
+
+        <div class="dado-grupo">
+            <label>Situação no Hospital (HUM)</label>
+            <div><span class="badge-status">Ativo / Regularizado</span></div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Captura o ID do voluntário vindo da URL (?id=X)
+    const urlParams = new URLSearchParams(window.location.search);
+    const voluntarioId = urlParams.get('id');
+
+    if (!voluntarioId) {
+        alert("Acesso inválido. Redirecionando para o login.");
+        window.location.href = 'index.html';
+    }
+
+    async function carregarDadosVoluntario() {
+        try {
+            // Tentativa de buscar no backend Java (Exemplo de endpoint futuro)
+            const resposta = await fetch(`http://127.0.0.1:8080/api/voluntario?id=${voluntarioId}`);
+            
+            if (resposta.status === 200) {
+                const dados = await resposta.json();
+                document.getElementById('vol-nome').innerText = dados.nome;
+                document.getElementById('vol-cpf').innerText = dados.cpf;
+                document.getElementById('vol-id').innerText = dados.id;
+            } else {
+                carregarMock();
+            }
+        } catch (erro) {
+            // Fallback: Se o servidor ainda não tiver este endpoint de consulta, exibe dados fictícios baseados no ID
+            carregarMock();
+        }
+    }
+
+    function carregarMock() {
+        document.getElementById('vol-nome').innerText = "Voluntário de Teste Inicial";
+        document.getElementById('vol-cpf').innerText = "123.456.789-01";
+        document.getElementById('vol-id').innerText = voluntarioId;
+    }
+
+    function logout() {
+        window.location.href = 'index.html';
+    }
+
+    // Executa ao carregar a página
+    carregarDadosVoluntario();
+</script>
+
+</body>
+</html>
