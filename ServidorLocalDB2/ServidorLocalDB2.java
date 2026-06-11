@@ -22,13 +22,11 @@ public class ServidorLocalDB2 {
     private static final String DB_PASS = "123";
 
     public static void main(String[] args) throws Exception {
-        // No Java 11, o Class.forName() para drivers JDBC modernos geralmente é opcional, 
-        // mas mantemos ou garantimos que o driver do DB2 esteja no classpath.
 
         // Cria o servidor HTTP escutando APENAS no localhost (127.0.0.1)
         var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 8080), 0);
         
-        // Define os endpoints usando expressões Lambda (Adeus classes anônimas verbosas!)
+        // Define os endpoints usando expressões Lambda
         server.createContext("/api/login/voluntario", new LoginHandler("VOLUNTARIOS"));
         server.createContext("/api/login/gerente", new LoginHandler("GERENTES"));
         
@@ -46,16 +44,15 @@ public class ServidorLocalDB2 {
 
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            // Validação moderna do método HTTP
+            // Validação do método HTTP
             if (!"POST".equals(exchange.getRequestMethod())) {
                 enviarResposta(exchange, 405, "Método não permitido. Use POST.");
                 return;
             }
 
-            // Lendo o corpo do POST de forma extremamente simples com Java 11
+            // Lendo o corpo do POST e convertendo para String usando UTF-8
             var body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             
-            // Parsing elegante usando Streams do Java 8+
             Map<String, String> parametros = extrairParametros(body);
             var cpf = parametros.get("cpf");
             var senha = parametros.get("senha");
@@ -76,9 +73,7 @@ public class ServidorLocalDB2 {
 
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
-                        int id = rs.getInt("ID");
-                        // String Blocks nativos só chegaram no Java 15, então usamos concatenação limpa ou String.format
-                        var jsonResposta = String.format("{\"status\":\"sucesso\",\"mensagem\":\"Login autorizado\",\"id\":%d}", id);
+                        int id = rs.getInt("ID");                        var jsonResposta = String.format("{\"status\":\"sucesso\",\"mensagem\":\"Login autorizado\",\"id\":%d}", id);
                         enviarResposta(exchange, 200, jsonResposta);
                     } else {
                         enviarResposta(exchange, 401, "{\"status\":\"erro\",\"mensagem\":\"CPF ou senha incorretos\"}");
@@ -100,7 +95,6 @@ public class ServidorLocalDB2 {
         }
 
         private void enviarResposta(HttpExchange exchange, int statusCode, String resposta) throws IOException {
-        // 👇 ADICIONE ESTA LINHA ABAIXO PARA LIBERAR O ACESSO DO NAVEGADOR
         exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
     
         exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");

@@ -1,0 +1,6 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "ServidorLocalDB2/db2jcc4.jar"
+    ]
+}
